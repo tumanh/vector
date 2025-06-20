@@ -54,7 +54,7 @@ jobs:
       - name: Build Vector
         env:
           DOCKER_PRIVILEGED: "true"
-        run: make package-armv7-unknown-linux-musleabihf
+        run: make package-s390x-unknown-linux-gnu
       - name: Stage package artifacts for publish
         uses: actions/upload-artifact@v4
         with:
@@ -147,7 +147,7 @@ jobs:
     timeout-minutes: 5
     needs:
       - generate-publish-metadata
-      - build-x86_64-unknown-linux-gnu-packages
+      - build-s390x-unknown-linux-gnu-packages
     env:
       VECTOR_VERSION: ${{ needs.generate-publish-metadata.outputs.vector_version }}
       DD_PKG_VERSION: "latest"
@@ -192,22 +192,7 @@ jobs:
         run: |
           ./scripts/verify-install.sh target/artifacts/vector-${{ env.VECTOR_VERSION }}-1.x86_64.rpm
 
-  macos-verify:
-    name: Verify macOS Package
-    runs-on: ${{ matrix.runner }}
-    timeout-minutes: 5
-    needs:
-      - generate-publish-metadata
-      - build-apple-darwin-packages
-    env:
-      VECTOR_VERSION: ${{ needs.generate-publish-metadata.outputs.vector_version }}
-    strategy:
-      matrix:
-        include:
-          - target: x86_64-apple-darwin
-            runner: macos-latest-large
-          - target: arm64-apple-darwin
-            runner: macos-latest-xlarge
+
     steps:
       - name: Checkout Vector
         uses: actions/checkout@v4
@@ -229,14 +214,6 @@ jobs:
     timeout-minutes: 15
     needs:
       - generate-publish-metadata
-      - build-aarch64-unknown-linux-gnu-packages
-      - build-aarch64-unknown-linux-musl-packages
-      - build-x86_64-unknown-linux-gnu-packages
-      - build-x86_64-unknown-linux-musl-packages
-      - build-armv7-unknown-linux-musleabihf-packages
-      - build-armv7-unknown-linux-gnueabihf-packages
-      - build-arm-unknown-linux-gnueabi-packages
-      - build-arm-unknown-linux-musleabi-packages
       - build-s390x-unknown-linux-gnu-packages
       - deb-verify
     env:
@@ -269,27 +246,6 @@ jobs:
         with:
           version: latest
           install: true
-      - name: Download staged package artifacts (aarch64-unknown-linux-gnu)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-aarch64-unknown-linux-gnu
-          path: target/artifacts
-      - name: Download staged package artifacts (aarch64-unknown-linux-musl)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-aarch64-unknown-linux-musl
-          path: target/artifacts
-      - name: Download staged package artifacts (x86_64-unknown-linux-gnu)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-x86_64-unknown-linux-gnu
-          path: target/artifacts
-      - name: Download staged package artifacts (x86_64-unknown-linux-musl)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-x86_64-unknown-linux-musl
-          path: target/artifacts
-
       - name: Download staged package artifacts (s390x-unknown-linux-gnu)
         uses: actions/download-artifact@v4
         with:
@@ -297,7 +253,7 @@ jobs:
           path: target/artifacts
       - name: Build and publish Docker images
         env:
-          PLATFORM: "linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6,linux/s390x"
+          PLATFORM: "linux/s390x"
           REPOS: "timberio/vector,ghcr.io/vectordotdev/vector"
         uses: nick-fields/retry@v3
         with:
@@ -312,20 +268,9 @@ jobs:
     timeout-minutes: 10
     needs:
       - generate-publish-metadata
-      - build-x86_64-unknown-linux-gnu-packages
-      - build-x86_64-unknown-linux-musl-packages
-      - build-aarch64-unknown-linux-musl-packages
-      - build-aarch64-unknown-linux-gnu-packages
-      - build-apple-darwin-packages
-      - build-x86_64-pc-windows-msvc-packages
-      - build-armv7-unknown-linux-musleabihf-packages
-      - build-armv7-unknown-linux-gnueabihf-packages
-      - build-arm-unknown-linux-gnueabi-packages
-      - build-arm-unknown-linux-musleabi-packages
       - build-s390x-unknown-linux-gnu-packages
       - deb-verify
       - rpm-verify
-      - macos-verify
     env:
       VECTOR_VERSION: ${{ needs.generate-publish-metadata.outputs.vector_version }}
       CHANNEL: ${{ needs.generate-publish-metadata.outputs.vector_release_channel }}
@@ -334,61 +279,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.git_ref }}
-      - name: Download staged package artifacts (aarch64-unknown-linux-gnu)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-aarch64-unknown-linux-gnu
-          path: target/artifacts
-      - name: Download staged package artifacts (aarch64-unknown-linux-musl)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-aarch64-unknown-linux-musl
-          path: target/artifacts
-      - name: Download staged package artifacts (x86_64-unknown-linux-gnu)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-x86_64-unknown-linux-gnu
-          path: target/artifacts
-      - name: Download staged package artifacts (x86_64-unknown-linux-musl)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-x86_64-unknown-linux-musl
-          path: target/artifacts
-      - name: Download staged package artifacts (x86_64-apple-darwin)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-x86_64-apple-darwin
-          path: target/artifacts
-      - name: Download staged package artifacts (arm64-apple-darwin)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-arm64-apple-darwin
-          path: target/artifacts
-      - name: Download staged package artifacts (x86_64-pc-windows-msvc)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-x86_64-pc-windows-msvc
-          path: target/artifacts
-      - name: Download staged package artifacts (armv7-unknown-linux-gnueabihf)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-armv7-unknown-linux-gnueabihf
-          path: target/artifacts
-      - name: Download staged package artifacts (armv7-unknown-linux-musleabihf)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-armv7-unknown-linux-musleabihf
-          path: target/artifacts
-      - name: Download staged package artifacts (arm-unknown-linux-gnueabi)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-arm-unknown-linux-gnueabi
-          path: target/artifacts
-      - name: Download staged package artifacts (arm-unknown-linux-musleabi)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-arm-unknown-linux-musleabi
-          path: target/artifacts
+
       - name: Download staged package artifacts (s390x-unknown-linux-gnu)
         uses: actions/download-artifact@v4
         with:
@@ -408,20 +299,9 @@ jobs:
     timeout-minutes: 10
     needs:
       - generate-publish-metadata
-      - build-x86_64-unknown-linux-gnu-packages
-      - build-x86_64-unknown-linux-musl-packages
-      - build-aarch64-unknown-linux-musl-packages
-      - build-aarch64-unknown-linux-gnu-packages
-      - build-apple-darwin-packages
-      - build-x86_64-pc-windows-msvc-packages
-      - build-armv7-unknown-linux-gnueabihf-packages
-      - build-armv7-unknown-linux-musleabihf-packages
-      - build-arm-unknown-linux-gnueabi-packages
-      - build-arm-unknown-linux-musleabi-packages
       - build-s390x-unknown-linux-gnu-packages
       - deb-verify
       - rpm-verify
-      - macos-verify
       - generate-sha256sum
     env:
       VECTOR_VERSION: ${{ needs.generate-publish-metadata.outputs.vector_version }}
@@ -450,46 +330,6 @@ jobs:
         with:
           name: vector-${{ env.VECTOR_VERSION }}-x86_64-unknown-linux-musl
           path: target/artifacts
-      - name: Download staged package artifacts (x86_64-apple-darwin)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-x86_64-apple-darwin
-          path: target/artifacts
-      - name: Download staged package artifacts (arm64-apple-darwin)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-arm64-apple-darwin
-          path: target/artifacts
-      - name: Download staged package artifacts (x86_64-pc-windows-msvc)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-x86_64-pc-windows-msvc
-          path: target/artifacts
-      - name: Download staged package artifacts (armv7-unknown-linux-gnueabihf)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-armv7-unknown-linux-gnueabihf
-          path: target/artifacts
-      - name: Download staged package artifacts (armv7-unknown-linux-musleabihf)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-armv7-unknown-linux-musleabihf
-          path: target/artifacts
-      - name: Download artifact checksums
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-SHA256SUMS
-          path: target/artifacts
-      - name: Download staged package artifacts (arm-unknown-linux-gnueabi)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-arm-unknown-linux-gnueabi
-          path: target/artifacts
-      - name: Download staged package artifacts (arm-unknown-linux-musleabi)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-arm-unknown-linux-musleabi
-          path: target/artifacts
       - name: Download staged package artifacts (s390x-unknown-linux-gnu)
         uses: actions/download-artifact@v4
         with:
@@ -500,14 +340,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: make release-github
 
-  publish-homebrew:
-    name: Publish to Homebrew
-    # We only publish to Homebrew for versioned releases, not nightlies.
-    if: inputs.channel == 'release'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    needs:
-      - generate-publish-metadata
+
       - publish-s3
     env:
       VECTOR_VERSION: ${{ needs.generate-publish-metadata.outputs.vector_version }}
