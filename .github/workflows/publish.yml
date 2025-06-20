@@ -47,7 +47,7 @@ jobs:
         id: generate-publish-metadata
         run: make ci-generate-publish-metadata
 
-
+      - name: Bootstrap runner environment (Ubuntu)
         run: sudo -E bash scripts/environment/bootstrap-ubuntu-24.04.sh
       - name: Bootstrap runner environment (generic)
         run: bash scripts/environment/prepare.sh
