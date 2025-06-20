@@ -47,157 +47,7 @@ jobs:
         id: generate-publish-metadata
         run: make ci-generate-publish-metadata
 
-  build-x86_64-unknown-linux-musl-packages:
-    name: Build Vector for x86_64-unknown-linux-musl (.tar.gz)
-    runs-on: release-builder-linux
-    timeout-minutes: 60
-    needs: generate-publish-metadata
-    env:
-      VECTOR_VERSION: ${{ needs.generate-publish-metadata.outputs.vector_version }}
-      VECTOR_BUILD_DESC: ${{ needs.generate-publish-metadata.outputs.vector_build_desc }}
-      CHANNEL: ${{ needs.generate-publish-metadata.outputs.vector_release_channel }}
-    steps:
-      - name: Checkout Vector
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.git_ref }}
-      - name: Bootstrap runner environment (Ubuntu-specific)
-        run: sudo -E bash scripts/environment/bootstrap-ubuntu-24.04.sh
-      - name: Bootstrap runner environment (generic)
-        run: bash scripts/environment/prepare.sh
-      - name: Build Vector
-        run: make package-x86_64-unknown-linux-musl-all
-      - name: Stage package artifacts for publish
-        uses: actions/upload-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-x86_64-unknown-linux-musl
-          path: target/artifacts/vector*
 
-  build-x86_64-unknown-linux-gnu-packages:
-    name: Build Vector for x86_64-unknown-linux-gnu (.tar.gz, DEB, RPM)
-    runs-on: release-builder-linux
-    needs: generate-publish-metadata
-    timeout-minutes: 60
-    env:
-      VECTOR_VERSION: ${{ needs.generate-publish-metadata.outputs.vector_version }}
-      VECTOR_BUILD_DESC: ${{ needs.generate-publish-metadata.outputs.vector_build_desc }}
-      CHANNEL: ${{ needs.generate-publish-metadata.outputs.vector_release_channel }}
-    steps:
-      - name: Checkout Vector
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.git_ref }}
-      - name: Bootstrap runner environment (Ubuntu-specific)
-        run: sudo -E bash scripts/environment/bootstrap-ubuntu-24.04.sh
-      - name: Bootstrap runner environment (generic)
-        run: bash scripts/environment/prepare.sh
-      - name: Build Vector
-        run: make package-x86_64-unknown-linux-gnu-all
-      - name: Stage package artifacts for publish
-        uses: actions/upload-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-x86_64-unknown-linux-gnu
-          path: target/artifacts/vector*
-
-  build-aarch64-unknown-linux-musl-packages:
-    name: Build Vector for aarch64-unknown-linux-musl (.tar.gz)
-    runs-on: release-builder-linux
-    timeout-minutes: 60
-    needs: generate-publish-metadata
-    env:
-      VECTOR_VERSION: ${{ needs.generate-publish-metadata.outputs.vector_version }}
-      VECTOR_BUILD_DESC: ${{ needs.generate-publish-metadata.outputs.vector_build_desc }}
-      CHANNEL: ${{ needs.generate-publish-metadata.outputs.vector_release_channel }}
-    steps:
-      - name: Checkout Vector
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.git_ref }}
-      - name: Bootstrap runner environment (Ubuntu-specific)
-        run: sudo -E bash scripts/environment/bootstrap-ubuntu-24.04.sh
-      - name: Bootstrap runner environment (generic)
-        run: bash scripts/environment/prepare.sh
-      - name: Build Vector
-        env:
-          DOCKER_PRIVILEGED: "true"
-        run: make package-aarch64-unknown-linux-musl-all
-      - name: Stage package artifacts for publish
-        uses: actions/upload-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-aarch64-unknown-linux-musl
-          path: target/artifacts/vector*
-
-  build-aarch64-unknown-linux-gnu-packages:
-    name: Build Vector for aarch64-unknown-linux-gnu (.tar.gz)
-    runs-on: release-builder-linux
-    timeout-minutes: 60
-    needs: generate-publish-metadata
-    env:
-      VECTOR_VERSION: ${{ needs.generate-publish-metadata.outputs.vector_version }}
-      VECTOR_BUILD_DESC: ${{ needs.generate-publish-metadata.outputs.vector_build_desc }}
-      CHANNEL: ${{ needs.generate-publish-metadata.outputs.vector_release_channel }}
-    steps:
-      - name: Checkout Vector
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.git_ref }}
-      - name: Bootstrap runner environment (Ubuntu-specific)
-        run: sudo -E bash scripts/environment/bootstrap-ubuntu-24.04.sh
-      - name: Bootstrap runner environment (generic)
-        run: bash scripts/environment/prepare.sh
-      - name: Build Vector
-        env:
-          DOCKER_PRIVILEGED: "true"
-        run: make package-aarch64-unknown-linux-gnu-all
-      - name: Stage package artifacts for publish
-        uses: actions/upload-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-aarch64-unknown-linux-gnu
-          path: target/artifacts/vector*
-
-  build-armv7-unknown-linux-gnueabihf-packages:
-    name: Build Vector for armv7-unknown-linux-gnueabihf (.tar.gz)
-    runs-on: release-builder-linux
-    timeout-minutes: 60
-    needs: generate-publish-metadata
-    env:
-      VECTOR_VERSION: ${{ needs.generate-publish-metadata.outputs.vector_version }}
-      VECTOR_BUILD_DESC: ${{ needs.generate-publish-metadata.outputs.vector_build_desc }}
-      CHANNEL: ${{ needs.generate-publish-metadata.outputs.vector_release_channel }}
-    steps:
-      - name: Checkout Vector
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.git_ref }}
-      - name: Bootstrap runner environment (Ubuntu-specific)
-        run: sudo -E bash scripts/environment/bootstrap-ubuntu-24.04.sh
-      - name: Bootstrap runner environment (generic)
-        run: bash scripts/environment/prepare.sh
-      - name: Build Vector
-        env:
-          DOCKER_PRIVILEGED: "true"
-        run: make package-armv7-unknown-linux-gnueabihf-all
-      - name: Stage package artifacts for publish
-        uses: actions/upload-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-armv7-unknown-linux-gnueabihf
-          path: target/artifacts/vector*
-
-  build-armv7-unknown-linux-musleabihf-packages:
-    name: Build Vector for armv7-unknown-linux-musleabihf (.tar.gz)
-    runs-on: release-builder-linux
-    timeout-minutes: 60
-    needs: generate-publish-metadata
-    env:
-      VECTOR_VERSION: ${{ needs.generate-publish-metadata.outputs.vector_version }}
-      VECTOR_BUILD_DESC: ${{ needs.generate-publish-metadata.outputs.vector_build_desc }}
-      CHANNEL: ${{ needs.generate-publish-metadata.outputs.vector_release_channel }}
-    steps:
-      - name: Checkout Vector
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.git_ref }}
-      - name: Bootstrap runner environment (Ubuntu-specific)
         run: sudo -E bash scripts/environment/bootstrap-ubuntu-24.04.sh
       - name: Bootstrap runner environment (generic)
         run: bash scripts/environment/prepare.sh
@@ -211,60 +61,7 @@ jobs:
           name: vector-${{ env.VECTOR_VERSION }}-armv7-unknown-linux-musleabihf
           path: target/artifacts/vector*
 
-  build-arm-unknown-linux-gnueabi-packages:
-    name: Build Vector for arm-unknown-linux-gnueabi (.tar.gz)
-    runs-on: release-builder-linux
-    timeout-minutes: 60
-    needs: generate-publish-metadata
-    env:
-      VECTOR_VERSION: ${{ needs.generate-publish-metadata.outputs.vector_version }}
-      VECTOR_BUILD_DESC: ${{ needs.generate-publish-metadata.outputs.vector_build_desc }}
-      CHANNEL: ${{ needs.generate-publish-metadata.outputs.vector_release_channel }}
-    steps:
-      - name: Checkout Vector
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.git_ref }}
-      - name: Bootstrap runner environment (Ubuntu-specific)
-        run: sudo -E bash scripts/environment/bootstrap-ubuntu-24.04.sh
-      - name: Bootstrap runner environment (generic)
-        run: bash scripts/environment/prepare.sh
-      - name: Build Vector
-        env:
-          DOCKER_PRIVILEGED: "true"
-        run: make package-arm-unknown-linux-gnueabi-all
-      - name: Stage package artifacts for publish
-        uses: actions/upload-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-arm-unknown-linux-gnueabi
-          path: target/artifacts/vector*
 
-  build-arm-unknown-linux-musleabi-packages:
-    name: Build Vector for arm-unknown-linux-musleabi (.tar.gz)
-    runs-on: release-builder-linux
-    needs: generate-publish-metadata
-    env:
-      VECTOR_VERSION: ${{ needs.generate-publish-metadata.outputs.vector_version }}
-      VECTOR_BUILD_DESC: ${{ needs.generate-publish-metadata.outputs.vector_build_desc }}
-      CHANNEL: ${{ needs.generate-publish-metadata.outputs.vector_release_channel }}
-    steps:
-      - name: Checkout Vector
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.git_ref }}
-      - name: Bootstrap runner environment (Ubuntu-specific)
-        run: sudo -E bash scripts/environment/bootstrap-ubuntu-24.04.sh
-      - name: Bootstrap runner environment (generic)
-        run: bash scripts/environment/prepare.sh
-      - name: Build Vector
-        env:
-          DOCKER_PRIVILEGED: "true"
-        run: make package-arm-unknown-linux-musleabi
-      - name: Stage package artifacts for publish
-        uses: actions/upload-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-arm-unknown-linux-musleabi
-          path: target/artifacts/vector*
 
   build-s390x-unknown-linux-gnu-packages:
     name: Build Vector for s390x-unknown-linux-gnu (.tar.gz, DEB, RPM)
@@ -294,102 +91,7 @@ jobs:
           name: vector-${{ env.VECTOR_VERSION }}-s390x-unknown-linux-gnu
           path: target/artifacts/vector*
 
-  build-apple-darwin-packages:
-    name: Build Vector for ${{ matrix.architecture }}-apple-darwin (.tar.gz)
-    runs-on: ${{ matrix.runner }}
-    timeout-minutes: 90
-    needs: generate-publish-metadata
-    env:
-      VECTOR_VERSION: ${{ needs.generate-publish-metadata.outputs.vector_version }}
-      VECTOR_BUILD_DESC: ${{ needs.generate-publish-metadata.outputs.vector_build_desc }}
-      CHANNEL: ${{ needs.generate-publish-metadata.outputs.vector_release_channel }}
-    strategy:
-      matrix:
-        include:
-          # Refer to https://docs.github.com/en/actions/using-github-hosted-runners/using-larger-runners/about-larger-runners#about-macos-larger-runners.
-          - architecture: x86_64
-            runner: macos-latest-large
-          - architecture: arm64
-            runner: macos-latest-xlarge
-    steps:
-      - name: Verify Runner Architecture
-        run: |
-          ARCH=$(uname -m)
-          echo "Detected architecture: $ARCH"
-          if [ "$ARCH" != "${{ matrix.architecture }}" ]; then
-            echo "Error: Expected ${{ matrix.architecture }} architecture, but got $ARCH!"
-            exit 1
-          fi
-      - name: Checkout Vector
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.git_ref }}
-      - name: Bootstrap runner environment (macOS-specific)
-        run: |
-          bash scripts/environment/bootstrap-macos.sh
-          # We usually run `scripts/environment/prepare.sh` but in this case we only need the toolchain.
-          rustup show active-toolchain || rustup toolchain install
-          rustup show
-      - name: Build Vector
-        env:
-          TARGET: "${{ matrix.architecture }}-apple-darwin"
-          NATIVE_BUILD: true
-        run: |
-          export PATH="$HOME/.cargo/bin:$PATH"
-          make package
-      - name: Stage package artifacts for publish
-        uses: actions/upload-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-${{ matrix.architecture }}-apple-darwin
-          path: target/artifacts/vector*
 
-
-  build-x86_64-pc-windows-msvc-packages:
-    name: Build Vector for x86_64-pc-windows-msvc (.zip)
-    runs-on: release-builder-windows-2022
-    timeout-minutes: 90
-    needs: generate-publish-metadata
-    env:
-      VECTOR_VERSION: ${{ needs.generate-publish-metadata.outputs.vector_version }}
-      VECTOR_BUILD_DESC: ${{ needs.generate-publish-metadata.outputs.vector_build_desc }}
-      CHANNEL: ${{ needs.generate-publish-metadata.outputs.vector_release_channel }}
-      RUSTFLAGS: "-D warnings -Ctarget-feature=+crt-static"
-      RELEASE_BUILDER: "true"
-    steps:
-      - name: Checkout Vector
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.git_ref }}
-      - name: Bootstrap runner environment (Windows-specific)
-        run: .\scripts\environment\bootstrap-windows-2022.ps1
-      - name: Install Wix
-        shell: bash
-        run: |
-          mkdir -p /c/wix
-          cd /c/wix
-          curl -sSfL https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314-binaries.zip > wix-binaries.zip
-          unzip -o wix-binaries.zip
-          rm wix-binaries.zip
-      - name: Build Vector
-        shell: bash
-        run: |
-          export FEATURES="default-msvc"
-          export ARCHIVE_TYPE="zip"
-          export KEEP_SYMBOLS="true"
-          export RUST_LTO=""
-          export TARGET="x86_64-pc-windows-msvc"
-          export NATIVE_BUILD="true"
-          make package
-      - name: Build MSI package
-        shell: bash
-        run: |
-          export PATH="/c/wix:$PATH"
-          ./scripts/package-msi.sh
-      - name: Stage package artifacts for publish
-        uses: actions/upload-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-x86_64-pc-windows-msvc
-          path: target/artifacts/vector*
 
   deb-verify:
     name: Verify DEB Packages
@@ -397,7 +99,7 @@ jobs:
     timeout-minutes: 5
     needs:
       - generate-publish-metadata
-      - build-x86_64-unknown-linux-gnu-packages
+      - build-s390x-unknown-linux-gnu-packages
     env:
       VECTOR_VERSION: ${{ needs.generate-publish-metadata.outputs.vector_version }}
       DD_PKG_VERSION: "latest"
@@ -430,14 +132,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.git_ref }}
-      - name: Download staged package artifacts (x86_64-unknown-linux-gnu)
+      - name: Download staged package artifacts (s390x-unknown-linux-gnu)
         uses: actions/download-artifact@v4
         with:
-          name: vector-${{ env.VECTOR_VERSION }}-x86_64-unknown-linux-gnu
+          name: vector-${{ env.VECTOR_VERSION }}-s390x-unknown-linux-gnu
           path: target/artifacts
       - name: Verify install of DEB package.
         run: |
-          ./scripts/verify-install.sh target/artifacts/vector_${{ env.VECTOR_VERSION }}-1_amd64.deb
+          ./scripts/verify-install.sh target/artifacts/vector_${{ env.VECTOR_VERSION }}-1_s390x.deb
 
   rpm-verify:
     name: Verify RPM Packages
@@ -587,26 +289,7 @@ jobs:
         with:
           name: vector-${{ env.VECTOR_VERSION }}-x86_64-unknown-linux-musl
           path: target/artifacts
-      - name: Download staged package artifacts (armv7-unknown-linux-gnueabihf)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-armv7-unknown-linux-gnueabihf
-          path: target/artifacts
-      - name: Download staged package artifacts (armv7-unknown-linux-musleabihf)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-armv7-unknown-linux-musleabihf
-          path: target/artifacts
-      - name: Download staged package artifacts (arm-unknown-linux-gnueabi)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-arm-unknown-linux-gnueabi
-          path: target/artifacts
-      - name: Download staged package artifacts (arm-unknown-linux-musleabi)
-        uses: actions/download-artifact@v4
-        with:
-          name: vector-${{ env.VECTOR_VERSION }}-arm-unknown-linux-musleabi
-          path: target/artifacts
+
       - name: Download staged package artifacts (s390x-unknown-linux-gnu)
         uses: actions/download-artifact@v4
         with:
